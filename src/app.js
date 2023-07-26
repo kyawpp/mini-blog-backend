@@ -12,6 +12,18 @@ const logger = winston.createLogger({
       new winston.transports.File({ filename: 'combined.log' }),
     ],
   });
+
+
+  // MongoDB Connection
+const dbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mini-blog';
+mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+db.on('error', (err) => {
+  logger.error(`MongoDB connection error: ${err.message}`);
+});
+db.once('open', () => {
+  logger.info('Connected to MongoDB database');
+});
   
 
 // Start the server
