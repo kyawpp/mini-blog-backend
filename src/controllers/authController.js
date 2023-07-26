@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const logger = require('../utils/logger');
 const validation = require('../utils/validation');
+const { userSchema,loginSchema } = require('../utils/validation');
 const { errorCodes, errorMessages } = require('../utils/errorCodes');
 
 const generateRandomPassword = (username) => {
@@ -14,7 +15,7 @@ const generateRandomPassword = (username) => {
 const createUser = async (req, res) => {
     try {
       // Validate the request data
-      const { error } = validation.userSchema.validate(req.body);
+      const { error } = userSchema.validate(req.body);
       if (error) {
         logger.warn(`Invalid request data during user creation: ${error.message}`);
         return res.status(400).json({ errorCode: errorCodes.INVALID_REQUEST_DATA, errorMessage: errorMessages.INVALID_REQUEST_DATA });
@@ -56,8 +57,8 @@ const createUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-      // Validate the request data against the loginSchema
-      const { error } = validation.loginSchema.validate(req.body);
+      // Validate the request data
+      const { error } = loginSchema.validate(req.body);
       if (error) {
         logger.warn(`Invalid request data during login: ${error.message}`);
         return res.status(400).json({ errorCode: errorCodes.INVALID_REQUEST_DATA, errorMessage: errorMessages.INVALID_REQUEST_DATA });

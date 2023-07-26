@@ -21,7 +21,6 @@
     "winston": "^3.10.0"
   },
   "devDependencies": {
-    "chai": "^5.0.0-alpha.1",
     "eslint": "^8.45.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-node": "^11.1.0",

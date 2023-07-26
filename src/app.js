@@ -20,7 +20,9 @@ app.use(bodyParser.json());
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
+const cardRoutes = require('./routes/cardRoutes');
 app.use('/auth', authRoutes);
+app.use('/cards', cardRoutes);
 
 // Start the server
 const port = process.env.PORT || 3000;
