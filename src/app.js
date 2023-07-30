@@ -3,6 +3,9 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const logger = require('./utils/logger');
 const app = express();
+require("dotenv").config();
+var cookieParser = require('cookie-parser');
+var cors = require('cors');
 
 // MongoDB Connection
 const dbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mini-blog';
@@ -17,6 +20,8 @@ db.once('open', () => {
 
 // Middleware
 app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(cors());
 
 // Routes
 const authRoutes = require('./routes/authRoutes');
@@ -25,7 +30,7 @@ app.use('/auth', authRoutes);
 app.use('/cards', cardRoutes);
 
 // Start the server
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 9000;
 app.listen(port, () => {
   logger.info(`Server running on port ${port}`);
 });

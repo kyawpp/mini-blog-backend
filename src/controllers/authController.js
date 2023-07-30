@@ -1,5 +1,4 @@
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const logger = require('../utils/logger');
 const validation = require('../utils/validation');
@@ -64,10 +63,10 @@ const loginUser = async (req, res) => {
         return res.status(400).json({ errorCode: errorCodes.INVALID_REQUEST_DATA, errorMessage: errorMessages.INVALID_REQUEST_DATA });
       }
   
-      const { username, password } = req.body;
+      const { email, password } = req.body;
   
       // Check if the user with the provided username exists
-      const user = await User.findOne({ username });
+      const user = await User.findOne({ email });
       if (!user) {
         logger.warn('Login failed: Invalid credentials');
         return res.status(401).json({ errorCode: errorCodes.USER_NOT_FOUND, errorMessage: errorMessages.USER_NOT_FOUND });
@@ -79,28 +78,51 @@ const loginUser = async (req, res) => {
         logger.warn('Login failed: Invalid credentials');
         return res.status(401).json({ errorCode: errorCodes.INVALID_CREDENTIALS, errorMessage: errorMessages.INVALID_CREDENTIALS });
       }
-  
-      // Generate a JWT token
-      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-  
       // Create the response object with user details and token
-      const response = {
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          datecreated: user.datecreated,
-        },
-        token,
-      };
-  
-      res.status(200).json(response);
+      sendTokenResponse(user, 200, res);
     } catch (error) {
       logger.error(`Error during login: ${error.message}`);
-      res.status(500).json({ errorCode: errorCodes.INTERNAL_SERVER_ERROR, errorMessage: errorMessage.INTERNAL_SERVER_ERROR });
+      res.status(500).json({ errorCode: errorCodes.INTERNAL_SERVER_ERROR, errorMessage: errorMessages.INTERNAL_SERVER_ERROR });
     }
   };
+
+  const sendTokenResponse = async (user, codeStatus, res) => {
+    const token = await user.getJwtToken();
+    const options = { maxAge: 60 * 60 * 1000, httpOnly: true }
+    if (process.env.NODE_ENV === 'production') {
+        options.secure = true
+    }
+    res
+        .status(codeStatus)
+        .cookie('token', token, options)
+        .json({user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            datecreated: user.datecreated,
+          },
+          token,})
+}
+
+//log out
+exports.logout = (req, res, next) => {
+    res.clearCookie('token');
+    res.status(200).json({
+        success: true,
+        message: "logged out"
+    })
+}
+
+
+//user profile
+exports.userProfile = async (req, res, next) => {
+    const user = await User.findById(req.user.id).select('-password');
+    res.status(200).json({
+        success: true,
+        user
+    })
+}
   
 
 module.exports = {
