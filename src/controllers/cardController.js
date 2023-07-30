@@ -3,6 +3,7 @@ const logger = require('../utils/logger');
 const { errorCodes, errorMessages } = require('../utils/errorCodes');
 const { cardSchema } = require('../utils/validation');
 const cloudinary = require('../utils/cloudinary');
+const main = require('../app');
 
 // Create a new card
 const createCard = async (req, res) => {
@@ -61,7 +62,7 @@ const editCard = async (req, res) => {
       logger.warn('Invalid request data during card creation');
       return res.status(400).json({ errorCode: errorCodes.INVALID_REQUEST_DATA, errorMessage: error.details[0].message });
     }
-    const { name, status, content, category } = req.body;
+    const { name, status, content, category, image, likes, comments } = req.body;
     const { cardId } = req.params;
     logger.info(`Card ID '${cardId}'`)
     const author = req.user.id;
@@ -144,13 +145,77 @@ const getCard = async (req, res) => {
   try {
     const card = await Card.findById(req.params.cardId).populate('comments.postedBy', 'username');
     res.status(200).json({
-        success: true,
-        card
+      success: true,
+      card
     })
-} catch (error) {
-  logger.error(`Error getting a card: ${error.message}`);
-  return res.status(500).json({ errorCode: errorCodes.INTERNAL_SERVER_ERROR, errorMessage: errorMessages.INTERNAL_SERVER_ERROR });
+  } catch (error) {
+    logger.error(`Error getting a card: ${error.message}`);
+    return res.status(500).json({ errorCode: errorCodes.INTERNAL_SERVER_ERROR, errorMessage: errorMessages.INTERNAL_SERVER_ERROR });
+  }
 }
+const addComment = async (req, res) => {
+  const { comment } = req.body;
+  try {
+    const postComment = await Card.findByIdAndUpdate(req.params.cardId, {
+      $push: { comments: { text: comment, postedBy: req.user._id } }
+    },
+      { new: true }
+    );
+    const card = await Card.findById(postComment._id).populate('comments.postedBy', 'username email');
+    res.status(200).json({
+      success: true,
+      card
+    })
+
+  } catch (error) {
+    logger.error(`Error while posting a comment: ${error.message}`);
+    return res.status(500).json({ errorCode: errorCodes.INTERNAL_SERVER_ERROR, errorMessage: errorMessages.INTERNAL_SERVER_ERROR });
+  }
+}
+
+const addLike = async (req, res) => {
+  try {
+    const card = await Card.findByIdAndUpdate(req.params.cardId, {
+      $addToSet: { likes: req.user._id }
+    },
+      { new: true }
+    );
+    const cards = await Card.find().sort({ createdAt: -1 }).populate('author', 'username');
+    main.io.emit('add-like', cards);
+
+    res.status(200).json({
+      success: true,
+      card,
+      cards
+    })
+
+  } catch (error) {
+    logger.error(`Error while posting a like: ${error.message}`);
+    return res.status(500).json({ errorCode: errorCodes.INTERNAL_SERVER_ERROR, errorMessage: errorMessages.INTERNAL_SERVER_ERROR });
+  }
+}
+
+const unLike = async (req, res) => {
+  try {
+    const card = await Card.findByIdAndUpdate(req.params.cardId, {
+      $pull: { likes: req.user._id }
+    },
+      { new: true }
+    );
+
+    const cards = await Card.find().sort({ createdAt: -1 }).populate('author', 'username');
+    main.io.emit('remove-like', cards);
+
+    res.status(200).json({
+      success: true,
+      card
+    })
+
+  } catch (error) {
+    logger.error(`Error while Unlike a post: ${error.message}`);
+    return res.status(500).json({ errorCode: errorCodes.INTERNAL_SERVER_ERROR, errorMessage: errorMessages.INTERNAL_SERVER_ERROR });
+  }
+
 }
 
 module.exports = {
@@ -158,5 +223,8 @@ module.exports = {
   editCard,
   deleteCard,
   showCards,
-  getCard
+  getCard,
+  addComment,
+  addLike,
+  unLike
 };

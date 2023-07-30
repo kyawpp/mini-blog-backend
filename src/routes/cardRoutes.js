@@ -15,4 +15,10 @@ router.get('/', cardController.showCards);
 
 router.get('/:cardId', authMiddleware, cardController.getCard);
 
+router.put('/comment/:cardId', authMiddleware, cardController.addComment);
+
+router.put('/like/:cardId', authMiddleware, cardController.addLike);
+
+router.put('/unlike/:cardId', authMiddleware, cardController.unLike);
+
 module.exports = router;

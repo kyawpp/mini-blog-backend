@@ -10,6 +10,12 @@ const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 const xss = require("xss-clean");
 
+
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
+
 // MongoDB Connection
 const dbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/mini-blog';
 mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -52,3 +58,13 @@ const port = process.env.PORT || 9000;
 app.listen(port, () => {
   logger.info(`Server running on port ${port}`);
 });
+
+io.on('connection', (socket) => {
+  //console.log('a user connected', socket.id);
+  socket.on('comment', (msg) => {
+    // console.log('new comment received', msg);
+    io.emit("new-comment", msg);
+  })
+})
+
+exports.io = io
