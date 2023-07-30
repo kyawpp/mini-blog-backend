@@ -105,8 +105,7 @@ const editCard = async (req, res) => {
 const deleteCard = async (req, res) => {
   try {
     const { cardId } = req.params;
-    const author = req.user.id; // Assuming you are using authentication middleware to set the user object in req
-
+    const author = req.user.id; // 
     // Find the card and check if the author matches
     const card = await Card.findById(cardId);
     if (!card) {
@@ -120,7 +119,7 @@ const deleteCard = async (req, res) => {
     }
 
     // Delete the card
-    await card.remove();
+    await card.deleteOne()
 
     return res.json({ message: 'Card deleted successfully' });
   } catch (error) {
