@@ -136,14 +136,27 @@ const showCards = async (req, res) => {
       cards
     })
   } catch (error) {
-    logger.error(`Error editing card: ${error.message}`);
+    logger.error(`Error getting all cards : ${error.message}`);
     return res.status(500).json({ errorCode: errorCodes.INTERNAL_SERVER_ERROR, errorMessage: errorMessages.INTERNAL_SERVER_ERROR });
   }
+}
+const getCard = async (req, res) => {
+  try {
+    const card = await Card.findById(req.params.cardId).populate('comments.postedBy', 'username');
+    res.status(200).json({
+        success: true,
+        card
+    })
+} catch (error) {
+  logger.error(`Error getting a card: ${error.message}`);
+  return res.status(500).json({ errorCode: errorCodes.INTERNAL_SERVER_ERROR, errorMessage: errorMessages.INTERNAL_SERVER_ERROR });
+}
 }
 
 module.exports = {
   createCard,
   editCard,
   deleteCard,
-  showCards
+  showCards,
+  getCard
 };

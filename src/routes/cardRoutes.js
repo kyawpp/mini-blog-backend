@@ -13,4 +13,6 @@ router.delete('/:cardId', authMiddleware, cardController.deleteCard);
 
 router.get('/', cardController.showCards);
 
+router.get('/:cardId', authMiddleware, cardController.getCard);
+
 module.exports = router;
