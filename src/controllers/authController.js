@@ -115,7 +115,7 @@ const logoutUser = (req, res, next) => {
 
 
 //user profile
-exports.userProfile = async (req, res, next) => {
+const userProfile = async (req, res, next) => {
     const user = await User.findById(req.user.id).select('-password');
     res.status(200).json({
         success: true,
@@ -127,5 +127,6 @@ exports.userProfile = async (req, res, next) => {
 module.exports = {
   createUser,
   loginUser,
-  logoutUser
+  logoutUser,
+  userProfile
 };
