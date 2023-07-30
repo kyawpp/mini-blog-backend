@@ -72,7 +72,8 @@ const loginUser = async (req, res) => {
       }
   
       // Compare the provided password with the hashed password in the database
-      const passwordMatch = await user.comparePassword(password);
+      //const passwordMatch = await user.comparePassword(password);
+      const passwordMatch = bcrypt.compare(password, user.password);
       if (!passwordMatch) {
         logger.warn('Login failed: Invalid credentials');
         return res.status(401).json({ errorCode: errorCodes.INVALID_CREDENTIALS, errorMessage: errorMessages.INVALID_CREDENTIALS });

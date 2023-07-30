@@ -11,4 +11,6 @@ router.put('/:cardId', authMiddleware, cardController.editCard);
 // Delete a card (authenticated route)
 router.delete('/:cardId', authMiddleware, cardController.deleteCard);
 
+router.get('/', cardController.showCards);
+
 module.exports = router;

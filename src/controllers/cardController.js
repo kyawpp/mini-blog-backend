@@ -128,8 +128,22 @@ const deleteCard = async (req, res) => {
   }
 };
 
+const showCards = async (req, res) => {
+  try {
+    const cards = await Card.find().sort({ createdAt: -1 }).populate('author', 'username');
+    res.status(201).json({
+      success: true,
+      cards
+    })
+  } catch (error) {
+    logger.error(`Error editing card: ${error.message}`);
+    return res.status(500).json({ errorCode: errorCodes.INTERNAL_SERVER_ERROR, errorMessage: errorMessages.INTERNAL_SERVER_ERROR });
+  }
+}
+
 module.exports = {
   createCard,
   editCard,
   deleteCard,
+  showCards
 };
