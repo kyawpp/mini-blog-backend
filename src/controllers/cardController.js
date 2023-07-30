@@ -13,14 +13,18 @@ const createCard = async (req, res) => {
       return res.status(400).json({ errorCode: errorCodes.INVALID_REQUEST_DATA, errorMessage: error.details[0].message });
     }
     const author = req.user.id;
+    logger.info(`userid '${req.user.id}'`);
+    
     // Create the card
-    const { name, status, content, category } = req.body;
+    const { name, status, content, category, image, likes, comments } = req.body;
     const card = new Card({
       name,
       status,
       content,
       category,
       author,
+      
+
     });
 
     await card.save();

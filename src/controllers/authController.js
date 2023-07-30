@@ -95,7 +95,7 @@ const loginUser = async (req, res) => {
         .status(codeStatus)
         .cookie('token', token, options)
         .json({user: {
-            id: user._id,
+            _id: user._id,
             username: user.username,
             email: user.email,
             role: user.role,
