@@ -17,6 +17,7 @@ const cardSchema = Joi.object({
   status: Joi.string().required(),
   content: Joi.string().required(),
   category: Joi.string().required(),
+  image: Joi.optional()
 });
 
 
