@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const logger = require('../utils/logger');
-const validation = require('../utils/validation');
 const { userSchema,loginSchema } = require('../utils/validation');
 const { errorCodes, errorMessages } = require('../utils/errorCodes');
 
@@ -73,7 +72,7 @@ const loginUser = async (req, res) => {
       }
   
       // Compare the provided password with the hashed password in the database
-      const passwordMatch = await bcrypt.compare(password, user.password);
+      const passwordMatch = await user.comparePassword(password);
       if (!passwordMatch) {
         logger.warn('Login failed: Invalid credentials');
         return res.status(401).json({ errorCode: errorCodes.INVALID_CREDENTIALS, errorMessage: errorMessages.INVALID_CREDENTIALS });
@@ -106,7 +105,7 @@ const loginUser = async (req, res) => {
 }
 
 //log out
-exports.logout = (req, res, next) => {
+const logoutUser = (req, res, next) => {
     res.clearCookie('token');
     res.status(200).json({
         success: true,
@@ -128,4 +127,5 @@ exports.userProfile = async (req, res, next) => {
 module.exports = {
   createUser,
   loginUser,
+  logoutUser
 };
