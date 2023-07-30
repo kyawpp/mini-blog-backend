@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ObjectId } = mongoose.Schema;
 
 const cardSchema = new mongoose.Schema(
   {
@@ -19,19 +20,34 @@ const cardSchema = new mongoose.Schema(
       required: true,
     },
     author: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: ObjectId,
       ref: 'User',
       required: true,
     },
     updatedBy: {
       user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: ObjectId,
         ref: 'User',
       },
       updatedAt: {
         type: Date,
       },
     },
+    image: {
+      url: String,
+      public_id: String,
+  },
+  likes: [{ type: ObjectId, ref: "User" }],
+  comments: [
+      {
+          text: String,
+          created: { type: Date, default: Date.now },
+          postedBy: {
+              type: ObjectId,
+              ref: "User",
+          },
+      },
+  ]
   },
   { timestamps: { createdAt: 'createdAt' } }
 );
