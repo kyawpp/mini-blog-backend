@@ -3,8 +3,8 @@
 
 Run Docker image for MongoDB
 
-docker build -t mini-blog-backend .
-docker run -d -p 27017:27017 --name mini-blog-mongo mini-blog-backend
+docker build -t mini-blog-db .
+docker run -d -p 27017:27017 --name mini-blog-mongo mini-blog-db
 
 Export the following env variables
 JWT_SECRET=securesecret
