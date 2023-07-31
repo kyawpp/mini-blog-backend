@@ -53,7 +53,7 @@ const createUser = async (req, res) => {
 
     // Save the user to the database
     await user.save();
-
+    logger.info(`User created successfully.`)
     res.status(201).json({ message: 'User created successfully' });
   } catch (error) {
     if (error.code === 11000 && error.keyPattern && error.keyPattern.username) {
