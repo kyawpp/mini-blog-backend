@@ -3,6 +3,7 @@ const User = require('../models/user');
 const logger = require('../utils/logger');
 const { userSchema, loginSchema } = require('../utils/validation');
 const { errorCodes, errorMessages } = require('../utils/errorCodes');
+const cloudinary = require('../utils/cloudinary');
 
 const generateRandomPassword = (username) => {
   const randomPassword = `${username}_$${Math.random().toString(36).substring(2, 15)}`;
@@ -46,6 +47,7 @@ const createUser = async (req, res) => {
       email,
       password: hashedPassword,
       role: role || 'author',
+      image: imageObj,
       datecreated: new Date(),
     });
 
